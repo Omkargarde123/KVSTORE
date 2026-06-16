@@ -1,0 +1,232 @@
+g++ : In file included from src/main.cpp:1:0:
+At line:1 char:1
++ g++ -std=c++17 -Wall -Wextra -O2 -Iinclude -o kvstore src/main.cpp sr ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (In file included from src/main.cp 
+   p:1:0::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+include/server.h:51:17: error: 'thread' is not a member of 'std'
+     std::vector<std::thread> workers;
+                 ^~~
+include/server.h:51:28: error: template argument 1 is invalid
+     std::vector<std::thread> workers;
+                            ^
+include/server.h:51:28: error: template argument 2 is invalid
+include/server.h:53:10: error: 'mutex' in namespace 'std' does not name a type
+     std::mutex queue_mutex;
+          ^~~~~
+include/server.h:54:10: error: 'condition_variable' in namespace 'std' does 
+not name a type
+     std::condition_variable condition;
+          ^~~~~~~~~~~~~~~~~~
+include/server.h:77:10: error: 'mutex' in namespace 'std' does not name a type
+     std::mutex store_mutex;
+          ^~~~~
+In file included from src/server.cpp:1:0:
+include/server.h:51:17: error: 'thread' is not a member of 'std'
+     std::vector<std::thread> workers;
+                 ^~~
+include/server.h:51:28: error: template argument 1 is invalid
+     std::vector<std::thread> workers;
+                            ^
+include/server.h:51:28: error: template argument 2 is invalid
+include/server.h:53:10: error: 'mutex' in namespace 'std' does not name a type
+     std::mutex queue_mutex;
+          ^~~~~
+include/server.h:54:10: error: 'condition_variable' in namespace 'std' does 
+not name a type
+     std::condition_variable condition;
+          ^~~~~~~~~~~~~~~~~~
+include/server.h:77:10: error: 'mutex' in namespace 'std' does not name a type
+     std::mutex store_mutex;
+          ^~~~~
+src/server.cpp: In member function 'void Server::start()':
+src/server.cpp:96:5: error: 'thread' is not a member of 'std'
+     std::thread([this] {
+     ^~~
+src/server.cpp: In lambda function:
+src/server.cpp:98:18: error: 'std::this_thread' has not been declared
+             std::this_thread::sleep_for(std::chrono::seconds(1));
+                  ^~~~~~~~~~~
+In file included from src/kv_store.cpp:1:0:
+include/server.h:51:17: error: 'thread' is not a member of 'std'
+     std::vector<std::thread> workers;
+                 ^~~
+include/server.h:51:28: error: template argument 1 is invalid
+     std::vector<std::thread> workers;
+                            ^
+include/server.h:51:28: error: template argument 2 is invalid
+include/server.h:53:10: error: 'mutex' in namespace 'std' does not name a type
+     std::mutex queue_mutex;
+          ^~~~~
+include/server.h:54:10: error: 'condition_variable' in namespace 'std' does 
+not name a type
+     std::condition_variable condition;
+          ^~~~~~~~~~~~~~~~~~
+include/server.h:77:10: error: 'mutex' in namespace 'std' does not name a type
+     std::mutex store_mutex;
+          ^~~~~
+src/kv_store.cpp: In member function 'bool KVStore::is_expired(const string&)':
+src/kv_store.cpp:6:45: warning: unused parameter 'key' [-Wunused-parameter]
+ bool KVStore::is_expired(const std::string& key) {
+                                             ^~~
+src/kv_store.cpp: In member function 'std::__cxx11::string KVStore::get(const 
+string&)':
+src/kv_store.cpp:19:21: error: 'mutex' is not a member of 'std'
+     std::lock_guard<std::mutex> lock(store_mutex);
+                     ^~~
+src/kv_store.cpp:19:31: error: template argument 1 is invalid
+     std::lock_guard<std::mutex> lock(store_mutex);
+                               ^
+src/kv_store.cpp:19:38: error: 'store_mutex' was not declared in this scope
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                      ^~~~~~~~~~~
+src/kv_store.cpp:19:33: warning: unused variable 'lock' [-Wunused-variable]
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                 ^~~~
+src/kv_store.cpp: In member function 'bool KVStore::set(const string&, const 
+string&, int)':
+src/kv_store.cpp:28:21: error: 'mutex' is not a member of 'std'
+     std::lock_guard<std::mutex> lock(store_mutex);
+                     ^~~
+src/kv_store.cpp:28:31: error: template argument 1 is invalid
+     std::lock_guard<std::mutex> lock(store_mutex);
+                               ^
+src/kv_store.cpp:28:38: error: 'store_mutex' was not declared in this scope
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                      ^~~~~~~~~~~
+src/kv_store.cpp:28:33: warning: unused variable 'lock' [-Wunused-variable]
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                 ^~~~
+src/kv_store.cpp: In member function 'bool KVStore::del(const string&)':
+src/kv_store.cpp:49:21: error: 'mutex' is not a member of 'std'
+     std::lock_guard<std::mutex> lock(store_mutex);
+                     ^~~
+src/kv_store.cpp:49:31: error: template argument 1 is invalid
+     std::lock_guard<std::mutex> lock(store_mutex);
+                               ^
+src/kv_store.cpp:49:38: error: 'store_mutex' was not declared in this scope
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                      ^~~~~~~~~~~
+src/kv_store.cpp:49:33: warning: unused variable 'lock' [-Wunused-variable]
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                 ^~~~
+src/kv_store.cpp: In member function 'std::__cxx11::string KVStore::keys()':
+src/kv_store.cpp:58:21: error: 'mutex' is not a member of 'std'
+     std::lock_guard<std::mutex> lock(store_mutex);
+                     ^~~
+src/kv_store.cpp:58:31: error: template argument 1 is invalid
+     std::lock_guard<std::mutex> lock(store_mutex);
+                               ^
+src/kv_store.cpp:58:38: error: 'store_mutex' was not declared in this scope
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                      ^~~~~~~~~~~
+src/kv_store.cpp:58:33: warning: unused variable 'lock' [-Wunused-variable]
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                 ^~~~
+src/kv_store.cpp: In member function 'size_t KVStore::size()':
+src/kv_store.cpp:66:21: error: 'mutex' is not a member of 'std'
+     std::lock_guard<std::mutex> lock(store_mutex);
+                     ^~~
+src/kv_store.cpp:66:31: error: template argument 1 is invalid
+     std::lock_guard<std::mutex> lock(store_mutex);
+                               ^
+src/kv_store.cpp:66:38: error: 'store_mutex' was not declared in this scope
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                      ^~~~~~~~~~~
+src/kv_store.cpp:66:33: warning: unused variable 'lock' [-Wunused-variable]
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                 ^~~~
+src/kv_store.cpp: In member function 'void KVStore::purge_expired()':
+src/kv_store.cpp:71:21: error: 'mutex' is not a member of 'std'
+     std::lock_guard<std::mutex> lock(store_mutex);
+                     ^~~
+src/kv_store.cpp:71:31: error: template argument 1 is invalid
+     std::lock_guard<std::mutex> lock(store_mutex);
+                               ^
+src/kv_store.cpp:71:38: error: 'store_mutex' was not declared in this scope
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                      ^~~~~~~~~~~
+src/kv_store.cpp:71:33: warning: unused variable 'lock' [-Wunused-variable]
+     std::lock_guard<std::mutex> lock(store_mutex);
+                                 ^~~~
+In file included from src/thread_pool.cpp:1:0:
+include/server.h:51:17: error: 'thread' is not a member of 'std'
+     std::vector<std::thread> workers;
+                 ^~~
+include/server.h:51:28: error: template argument 1 is invalid
+     std::vector<std::thread> workers;
+                            ^
+include/server.h:51:28: error: template argument 2 is invalid
+include/server.h:53:10: error: 'mutex' in namespace 'std' does not name a type
+     std::mutex queue_mutex;
+          ^~~~~
+include/server.h:54:10: error: 'condition_variable' in namespace 'std' does 
+not name a type
+     std::condition_variable condition;
+          ^~~~~~~~~~~~~~~~~~
+include/server.h:77:10: error: 'mutex' in namespace 'std' does not name a type
+     std::mutex store_mutex;
+          ^~~~~
+src/thread_pool.cpp: In constructor 'ThreadPool::ThreadPool(size_t)':
+src/thread_pool.cpp:5:17: error: request for member 'emplace_back' in 
+'((ThreadPool*)this)->ThreadPool::workers', which is of non-class type 'int'
+         workers.emplace_back([this] {
+                 ^~~~~~~~~~~~
+src/thread_pool.cpp: In lambda function:
+src/thread_pool.cpp:9:38: error: 'mutex' is not a member of 'std'
+                     std::unique_lock<std::mutex> lock(queue_mutex);
+                                      ^~~
+src/thread_pool.cpp:9:48: error: template argument 1 is invalid
+                     std::unique_lock<std::mutex> lock(queue_mutex);
+                                                ^
+src/thread_pool.cpp:9:55: error: 'queue_mutex' was not declared in this scope
+                     std::unique_lock<std::mutex> lock(queue_mutex);
+                                                       ^~~~~~~~~~~
+src/thread_pool.cpp:10:21: error: 'condition' was not declared in this scope
+                     condition.wait(lock, [this] {
+                     ^~~~~~~~~
+src/thread_pool.cpp: In destructor 'ThreadPool::~ThreadPool()':
+src/thread_pool.cpp:25:5: error: 'condition' was not declared in this scope
+     condition.notify_all();
+     ^~~~~~~~~
+src/thread_pool.cpp:26:20: error: 'begin' was not declared in this scope
+     for (auto& w : workers) w.join();
+                    ^~~~~~~
+src/thread_pool.cpp:26:20: note: suggested alternative:
+In file included from c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\string:51:0,
+                 from include/server.h:2,
+                 from src/thread_pool.cpp:1:
+c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\range_access.h:105:37: note:   
+'std::begin'
+   template<typename _Tp> const _Tp* begin(const valarray<_Tp>&);
+                                     ^~~~~
+src/thread_pool.cpp:26:20: error: 'end' was not declared in this scope
+     for (auto& w : workers) w.join();
+                    ^~~~~~~
+src/thread_pool.cpp:26:20: note: suggested alternative:
+In file included from c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\string:51:0,
+                 from include/server.h:2,
+                 from src/thread_pool.cpp:1:
+c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\range_access.h:107:37: note:   
+'std::end'
+   template<typename _Tp> const _Tp* end(const valarray<_Tp>&);
+                                     ^~~
+src/thread_pool.cpp: In member function 'void 
+ThreadPool::enqueue(std::function<void()>)':
+src/thread_pool.cpp:31:26: error: 'mutex' is not a member of 'std'
+         std::unique_lock<std::mutex> lock(queue_mutex);
+                          ^~~
+src/thread_pool.cpp:31:36: error: template argument 1 is invalid
+         std::unique_lock<std::mutex> lock(queue_mutex);
+                                    ^
+src/thread_pool.cpp:31:43: error: 'queue_mutex' was not declared in this scope
+         std::unique_lock<std::mutex> lock(queue_mutex);
+                                           ^~~~~~~~~~~
+src/thread_pool.cpp:31:38: warning: unused variable 'lock' [-Wunused-variable]
+         std::unique_lock<std::mutex> lock(queue_mutex);
+                                      ^~~~
+src/thread_pool.cpp:34:5: error: 'condition' was not declared in this scope
+     condition.notify_one();
+     ^~~~~~~~~

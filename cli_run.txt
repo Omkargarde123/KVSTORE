@@ -1,0 +1,8 @@
+.\kvstore-cli : connect: No error
+At line:1 char:1
++ .\kvstore-cli 127.0.0.1 6379 2>&1 | Out-File cli_run.txt -Encoding as ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (connect: No error:String) [], Rem 
+   oteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
