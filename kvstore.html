@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KVSTORE — Distributed In-Memory Key-Value Store</title>
+<style>
+  :root {
+    --bg: #0a0e14;
+    --bg-panel: #11161f;
+    --bg-panel-2: #161c27;
+    --border: #232b38;
+    --green: #39d353;
+    --cyan: #7dd3fc;
+    --amber: #f0b429;
+    --text: #e6edf3;
+    --text-dim: #7d8590;
+    --red: #f85149;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    line-height: 1.6;
+  }
+
+  .mono { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ===== NAV ===== */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 48px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(10,14,20,0.92);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo .dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); }
+  .navlinks { display: flex; gap: 36px; font-size: 14px; color: var(--text-dim); }
+  .navlinks a:hover { color: var(--text); }
+  .navcta {
+    border: 1px solid var(--border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    color: var(--text);
+  }
+  .navcta:hover { border-color: var(--green); color: var(--green); }
+
+  /* ===== HERO ===== */
+  .hero {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 90px 48px 60px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .eyebrow {
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    color: var(--green);
+    font-size: 13px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before { content: '$'; color: var(--text-dim); }
+  h1 {
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    font-size: 46px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    margin-bottom: 22px;
+  }
+  h1 .accent { color: var(--green); }
+  .sub {
+    color: var(--text-dim);
+    font-size: 16px;
+    max-width: 480px;
+    margin-bottom: 32px;
+  }
+  .herobtns { display: flex; gap: 14px; margin-bottom: 36px; }
+  .btn-primary {
+    background: var(--green);
+    color: #06160a;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+  }
+  .btn-primary:hover { background: #4eda69; }
+  .btn-secondary {
+    border: 1px solid var(--border);
+    padding: 12px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    color: var(--text);
+  }
+  .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .stats-row { display: flex; gap: 36px; }
+  .stat .num { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; font-size: 22px; font-weight: 700; color: var(--cyan); }
+  .stat .lbl { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  /* Terminal signature element */
+  .terminal {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px -20px rgba(57,211,83,0.15), 0 0 0 1px rgba(255,255,255,0.02);
+  }
+  .term-bar {
+    background: var(--bg-panel-2);
+    padding: 11px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .term-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .term-bar .t1 { background: #f85149; }
+  .term-bar .t2 { background: #f0b429; }
+  .term-bar .t3 { background: #39d353; }
+  .term-title { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; font-size: 12px; color: var(--text-dim); margin-left: 8px; }
+  .term-body {
+    padding: 20px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    font-size: 13px;
+    min-height: 280px;
+  }
+  .term-line { margin-bottom: 9px; opacity: 0; animation: fadeIn 0.4s forwards; }
+  .term-line .prompt { color: var(--green); }
+  .term-line .cmd { color: var(--text); }
+  .term-line .resp { color: var(--text-dim); padding-left: 18px; }
+  .term-line .resp.ok { color: var(--cyan); }
+  .cursor { display: inline-block; width: 7px; height: 14px; background: var(--green); animation: blink 1s step-end infinite; vertical-align: middle; }
+  @keyframes fadeIn { to { opacity: 1; } }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ===== SECTION SHARED ===== */
+  section { max-width: 1180px; margin: 0 auto; padding: 70px 48px; }
+  .section-head { margin-bottom: 44px; max-width: 600px; }
+  .section-eyebrow { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; color: var(--green); font-size: 12px; margin-bottom: 10px; letter-spacing: 1px; }
+  h2 { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; font-size: 30px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 14px; }
+  .section-sub { color: var(--text-dim); font-size: 15px; }
+
+  /* ===== ARCHITECTURE DIAGRAM ===== */
+  .arch {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 48px;
+  }
+  .arch-flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .arch-node {
+    background: var(--bg-panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 28px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 280px;
+  }
+  .arch-node.highlight { border-color: var(--green); box-shadow: 0 0 0 1px rgba(57,211,83,0.2), 0 8px 24px -8px rgba(57,211,83,0.25); }
+  .arch-node .sub-label { font-size: 11px; font-weight: 400; color: var(--text-dim); margin-top: 4px; }
+  .arch-arrow { color: var(--text-dim); font-size: 14px; padding: 10px 0; font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; }
+  .arch-row { display: flex; gap: 16px; }
+  .arch-row .arch-node { flex: 1; }
+
+  /* ===== FEATURES GRID ===== */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 26px;
+    transition: border-color 0.2s;
+  }
+  .feature-card:hover { border-color: var(--cyan); }
+  .feature-icon { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; color: var(--green); font-size: 13px; margin-bottom: 14px; }
+  .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .feature-card p { font-size: 13.5px; color: var(--text-dim); }
+
+  /* ===== METRICS DASHBOARD ===== */
+  .dash {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .dash-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dash-top .title { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; font-weight: 700; font-size: 15px; color: var(--cyan); }
+  .live-badge {
+    background: rgba(57,211,83,0.1);
+    color: var(--green);
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live-badge .pulse { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); }
+  .dstat { background: var(--bg-panel); padding: 22px 24px; }
+  .dstat .lbl { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+  .dstat .val { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; font-size: 26px; font-weight: 700; color: var(--text); }
+  .dstat .val.green { color: var(--green); }
+  .dstat .sub { font-size: 11px; color: var(--green); margin-top: 4px; }
+
+  .dash-table { padding: 20px 24px; }
+  .dash-table table { width: 100%; font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; font-size: 12.5px; border-collapse: collapse; }
+  .dash-table th { text-align: left; color: var(--text-dim); padding: 8px 10px; font-weight: 500; border-bottom: 1px solid var(--border); }
+  .dash-table td { padding: 8px 10px; border-bottom: 1px solid #1a212c; color: var(--text-dim); }
+  .cmd-tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+  .cmd-tag.get { background: rgba(125,211,252,0.12); color: var(--cyan); }
+  .cmd-tag.set { background: rgba(57,211,83,0.12); color: var(--green); }
+  .cmd-tag.del { background: rgba(248,81,73,0.12); color: var(--red); }
+  .status-ok { color: var(--green); }
+
+  /* worker pool */
+  .workers { display: flex; gap: 8px; padding: 20px 24px; flex-wrap: wrap; border-top: 1px solid var(--border); }
+  .worker-chip {
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .worker-chip .led { width: 6px; height: 6px; border-radius: 50%; }
+  .worker-chip.busy .led { background: var(--amber); }
+  .worker-chip.idle .led { background: var(--green); }
+
+  /* ===== TECH STACK ===== */
+  .stack-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .stack-item {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+  }
+  .stack-item .name { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); }
+  .stack-item .cat { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+  /* ===== CODE SNIPPET ===== */
+  .code-block {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    font-size: 13px;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+  .code-block .kw { color: #c792ea; }
+  .code-block .fn { color: var(--cyan); }
+  .code-block .str { color: var(--green); }
+  .code-block .cm { color: var(--text-dim); }
+  .code-block .num { color: var(--amber); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 36px 48px;
+    text-align: center;
+    color: var(--text-dim);
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', 'Roboto Mono', monospace;
+    font-size: 13px;
+  }
+  footer a:hover { color: var(--green); }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .dash-stats { grid-template-columns: repeat(2,1fr); }
+    .stack-grid { grid-template-columns: repeat(2,1fr); }
+    nav { padding: 18px 20px; }
+    .navlinks { display: none; }
+    section, .hero { padding: 50px 20px; }
+    h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><div class="dot"></div>KVSTORE</div>
+  <div class="navlinks">
+    <a href="#architecture">Architecture</a>
+    <a href="#features">Features</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#stack">Stack</a>
+  </div>
+  <a class="navcta" href="https://github.com/Omkargarde123/KVSTORE" target="_blank">github &#8599;</a>
+</nav>
+
+<div class="hero">
+  <div>
+    <div class="eyebrow">redis-inspired &#8226; built from scratch in c++17</div>
+    <h1>A key-value store that doesn't<br><span class="accent">flinch under load.</span></h1>
+    <p class="sub">Custom TCP protocol. 8-thread worker pool. O(1) LRU eviction. Zero memory leaks. Built to understand exactly how systems like Redis work, one socket at a time.</p>
+    <div class="herobtns">
+      <a class="btn-primary" href="https://github.com/Omkargarde123/KVSTORE" target="_blank">View source &rarr;</a>
+      <a class="btn-secondary" href="#architecture">See architecture</a>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="num">&lt;2ms</div><div class="lbl">avg latency</div></div>
+      <div class="stat"><div class="num">10K+</div><div class="lbl">requests tested</div></div>
+      <div class="stat"><div class="num">8</div><div class="lbl">worker threads</div></div>
+      <div class="stat"><div class="num">0</div><div class="lbl">memory leaks</div></div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="term-dot t1"></div><div class="term-dot t2"></div><div class="term-dot t3"></div>
+      <div class="term-title">kvstore-cli — session</div>
+    </div>
+    <div class="term-body" id="termBody"></div>
+  </div>
+</div>
+
+<section id="architecture">
+  <div class="section-head">
+    <div class="section-eyebrow">// ARCHITECTURE</div>
+    <h2>One request, four hops.</h2>
+    <p class="section-sub">From the moment a client opens a socket to the moment a value comes back — here's exactly what happens in between.</p>
+  </div>
+  <div class="arch">
+    <div class="arch-flow">
+      <div class="arch-node highlight">TCP Clients<div class="sub-label">GET / SET / DELETE</div></div>
+      <div class="arch-arrow">&#9660; custom tcp protocol</div>
+      <div class="arch-node highlight">Socket Listener<div class="sub-label">accept loop</div></div>
+      <div class="arch-arrow">&#9660;</div>
+      <div class="arch-node highlight">Worker Thread Pool (&times;8)<div class="sub-label">parses + dispatches requests</div></div>
+      <div class="arch-arrow">&#9660;</div>
+      <div class="arch-row" style="width:100%; max-width: 640px;">
+        <div class="arch-node">Hash Map<div class="sub-label">key &rarr; value</div></div>
+        <div class="arch-node">LRU Eviction<div class="sub-label">doubly linked list</div></div>
+        <div class="arch-node">TTL Min-Heap<div class="sub-label">expiry tracking</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="section-head">
+    <div class="section-eyebrow">// FEATURES</div>
+    <h2>What's actually inside.</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">[O(1)]</div>
+      <h3>LRU Eviction</h3>
+      <p>Hash map gives instant lookup; doubly linked list moves nodes to front and evicts from the back, both in constant time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">[TTL]</div>
+      <h3>Min-Heap Expiry</h3>
+      <p>Keys with a TTL sit in a min-heap ordered by expiry time, so the soonest-to-expire key is always reachable without scanning the store.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">[x8]</div>
+      <h3>Concurrent Workers</h3>
+      <p>An 8-thread pool handles parallel client connections, with mutex-guarded critical sections kept deliberately small.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">[TCP]</div>
+      <h3>Custom Protocol</h3>
+      <p>A lightweight protocol built directly on POSIX sockets — no framework, no abstraction layer between the wire and the logic.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">[ASAN]</div>
+      <h3>Memory Safety</h3>
+      <p>Validated with AddressSanitizer across 10,000+ concurrent requests. Zero leaks, zero use-after-free.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">[&#9633;]</div>
+      <h3>Containerized</h3>
+      <p>Ships with a Dockerfile — one command builds and runs the full server in an isolated environment.</p>
+    </div>
+  </div>
+</section>
+
+<section id="dashboard">
+  <div class="section-head">
+    <div class="section-eyebrow">// CONCEPTUAL — NOT YET BUILT</div>
+    <h2>What monitoring could look like.</h2>
+    <p class="section-sub">KVSTORE itself is a backend server with no UI. This is a mockup of the kind of dashboard that could sit on top of it.</p>
+  </div>
+  <div class="dash">
+    <div class="dash-top">
+      <div class="title">kvstore // monitoring</div>
+      <div class="live-badge"><div class="pulse"></div>8/8 WORKERS ACTIVE</div>
+    </div>
+    <div class="dash-stats">
+      <div class="dstat"><div class="lbl">AVG LATENCY</div><div class="val green">1.8ms</div><div class="sub">within target</div></div>
+      <div class="dstat"><div class="lbl">TOTAL REQUESTS</div><div class="val">10,452</div><div class="sub">last 60s</div></div>
+      <div class="dstat"><div class="lbl">KEYS STORED</div><div class="val">3,204</div></div>
+      <div class="dstat"><div class="lbl">MEMORY LEAKS</div><div class="val green">0</div><div class="sub">asan verified</div></div>
+    </div>
+    <div class="dash-table">
+      <table>
+        <tr><th>TIME</th><th>CMD</th><th>KEY</th><th>LATENCY</th><th>STATUS</th></tr>
+        <tr><td>14:32:01.204</td><td><span class="cmd-tag set">SET</span></td><td>user:8821</td><td>1.2ms</td><td class="status-ok">OK</td></tr>
+        <tr><td>14:32:01.198</td><td><span class="cmd-tag get">GET</span></td><td>session:441</td><td>0.9ms</td><td class="status-ok">OK</td></tr>
+        <tr><td>14:32:01.190</td><td><span class="cmd-tag del">DEL</span></td><td>cache:tmp22</td><td>1.5ms</td><td class="status-ok">OK</td></tr>
+        <tr><td>14:32:01.185</td><td><span class="cmd-tag get">GET</span></td><td>user:1190</td><td>2.0ms</td><td class="status-ok">OK</td></tr>
+      </table>
+    </div>
+    <div class="workers">
+      <div class="worker-chip idle"><div class="led"></div>worker-1</div>
+      <div class="worker-chip busy"><div class="led"></div>worker-2</div>
+      <div class="worker-chip idle"><div class="led"></div>worker-3</div>
+      <div class="worker-chip busy"><div class="led"></div>worker-4</div>
+      <div class="worker-chip idle"><div class="led"></div>worker-5</div>
+      <div class="worker-chip idle"><div class="led"></div>worker-6</div>
+      <div class="worker-chip busy"><div class="led"></div>worker-7</div>
+      <div class="worker-chip idle"><div class="led"></div>worker-8</div>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="section-head">
+    <div class="section-eyebrow">// STACK</div>
+    <h2>Built with, not on top of.</h2>
+  </div>
+  <div class="stack-grid">
+    <div class="stack-item"><div class="name">C++17</div><div class="cat">language</div></div>
+    <div class="stack-item"><div class="name">POSIX Sockets</div><div class="cat">networking</div></div>
+    <div class="stack-item"><div class="name">pthreads</div><div class="cat">concurrency</div></div>
+    <div class="stack-item"><div class="name">ASAN</div><div class="cat">memory safety</div></div>
+    <div class="stack-item"><div class="name">Docker</div><div class="cat">containerization</div></div>
+    <div class="stack-item"><div class="name">Min-Heap</div><div class="cat">data structure</div></div>
+    <div class="stack-item"><div class="name">Hash Map</div><div class="cat">data structure</div></div>
+    <div class="stack-item"><div class="name">Mutex/CV</div><div class="cat">synchronization</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <div class="section-eyebrow">// QUICK START</div>
+    <h2>Run it yourself.</h2>
+  </div>
+  <div class="code-block">
+<span class="cm"># clone and build with docker</span><br>
+git clone https://github.com/Omkargarde123/KVSTORE.git<br>
+<span class="kw">cd</span> KVSTORE<br>
+docker build <span class="kw">-t</span> kvstore .<br>
+docker run <span class="kw">-p</span> <span class="num">6379</span>:<span class="num">6379</span> kvstore<br><br>
+<span class="cm"># talk to it</span><br>
+echo <span class="str">"SET foo bar"</span> | nc localhost <span class="num">6379</span><br>
+echo <span class="str">"GET foo"</span> | nc localhost <span class="num">6379</span>
+  </div>
+</section>
+
+<footer>
+  built by <a href="https://github.com/Omkargarde123" target="_blank">Onkar Garde</a> &#8226; <a href="https://github.com/Omkargarde123/KVSTORE" target="_blank">source on github</a>
+</footer>
+
+<script>
+  const lines = [
+    { type: 'cmd', text: 'SET user:8821 "active"' },
+    { type: 'resp', text: 'OK', ok: true },
+    { type: 'cmd', text: 'GET user:8821' },
+    { type: 'resp', text: '"active"  (0.9ms)', ok: true },
+    { type: 'cmd', text: 'SET session:441 "token_xz2" EX 300' },
+    { type: 'resp', text: 'OK  (TTL set: 300s)', ok: true },
+    { type: 'cmd', text: 'DELETE cache:tmp22' },
+    { type: 'resp', text: 'OK  (1 key removed)', ok: true },
+    { type: 'cmd', text: 'GET cache:tmp22' },
+    { type: 'resp', text: '(nil)' },
+  ];
+
+  const term = document.getElementById('termBody');
+  let i = 0;
+
+  function typeLine() {
+    if (i >= lines.length) {
+      setTimeout(() => { term.innerHTML = ''; i = 0; typeLine(); }, 2000);
+      return;
+    }
+    const line = lines[i];
+    const div = document.createElement('div');
+    div.className = 'term-line';
+    if (line.type === 'cmd') {
+      div.innerHTML = '<span class="prompt">kvstore&gt;</span> <span class="cmd">' + line.text + '</span>';
+    } else {
+      div.innerHTML = '<span class="resp ' + (line.ok ? 'ok' : '') + '">' + line.text + '</span>';
+    }
+    term.appendChild(div);
+    i++;
+    setTimeout(typeLine, line.type === 'cmd' ? 650 : 450);
+  }
+  typeLine();
+</script>
+
+</body>
+</html>
